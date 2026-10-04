@@ -1,0 +1,38 @@
+# Render Blueprint: FastAPI backend + free PostgreSQL.
+# Render dashboard -> New -> Blueprint -> pick this repo. You'll be asked for the secret keys.
+services:
+  - type: web
+    name: farmer-assistant-api
+    runtime: python
+    rootDir: backend
+    plan: free
+    region: singapore            # closest Render region to India
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips "*"
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: GEMINI_API_KEY
+        sync: false              # entered in the Render dashboard, never committed
+      - key: MURF_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-3.8-flash
+      - key: GEMINI_FALLBACK_MODELS
+        value: gemini-3.7-flash,gemini-flash-latest,gemini-3.5-flash,gemini-3.5-flash-lite,gemini-flash-lite-latest
+      - key: CORS_ORIGINS
+        sync: false              # your Netlify URL, e.g. https://kisan-mitra.netlify.app
+      - key: RATE_LIMIT_PER_MINUTE
+        value: "30"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: farmer-db
+          property: connectionString
+
+databases:
+  - name: farmer-db
+    plan: free                   # note: Render's free Postgres expires after 30 days
+    region: singapore
+    databaseName: farmer
+    user: farmer

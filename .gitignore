@@ -1,0 +1,9 @@
+.env
+backend/.venv/
+backend/storage/
+__pycache__/
+frontend/node_modules/
+frontend/dist/
+.netlify/
+frontend/.env.local
+*.log
